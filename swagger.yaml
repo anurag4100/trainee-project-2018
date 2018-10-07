@@ -375,6 +375,35 @@ paths:
         204: 
           description: Deleted successfully
   
+  /{object_id}/vote/:
+    put:
+      tags:
+      - vote
+      summary: upvote any object
+      operationId: vote
+      description: This endpoint can be used to upvote any object e.g. feature or comment. Although , individual update endpoints can be used to upvote them but i thaught of going through this route so that some additional logic can be accomodated exclusive to upvote functionality. e.g. One user can upvote an object only once.
+      consumes:
+      - application/json
+      produces:
+      - application/plain-text
+      parameters:
+      - name: object_id
+        in: path
+        description: universal object id 
+        required: true
+        type: string
+        format: alphanumeric
+      
+      responses:
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/Errors'
+        404:
+          description: Feature not found
+        204: 
+          description: Updated successfully  
+          
 securityDefinitions:
   feat_sugg_auth:
     type: oauth2
@@ -392,6 +421,7 @@ definitions:
   Feature:
     type: object
     required:
+    - object_id
     - feature_id
     - title
     - description
@@ -401,6 +431,8 @@ definitions:
     - status
     - trend
     properties:
+      object_id:
+        $ref: '#/definitions/Object_Id'
       feature_id:
         type: integer
         format: int32
@@ -503,7 +535,8 @@ definitions:
         type: string
         description: the value user had provided in the field
   Comment:
-    required: 
+    required:
+      - object_id
       - comment_id
       - comment
       - author_id
@@ -512,8 +545,10 @@ definitions:
       - parent_id
       - created_at
     properties:
+      object_id: 
+        $ref: '#/definitions/Object_Id'
       comment_id: 
-        $ref: '#/definitions/Comment_id'
+        $ref: '#/definitions/Comment_Id'
       comment:
         type: string
         minLength: 10
@@ -541,7 +576,7 @@ definitions:
         description: vote count on the comment
         example: 5
       parent_id:
-        $ref: '#/definitions/Comment_id'
+        $ref: '#/definitions/Comment_Id'
         description: This field ties to the comment_id. This will help identify if the comment is reply to any previous comment.
                       this is a foreign key.
       created_at: 
@@ -555,14 +590,21 @@ definitions:
         example: 2018-06-10-23T18:25:43.511Z  
         description: when was the comment updated. 
         
-  Comment_id:
+  Comment_Id:
     type: string
     description: Unique identifier for every comment.This will also act as parent id to any reply to a comment.
     format : alphanumeric
     example: ABDGHAG123BJ
     minLength: 12
     maxLength: 12
-    
+  
+  Object_Id:
+    type: string
+    description: This will be a universal identifier for all the objects such as features, comments and attachments etc.
+    format : alphanumeric
+    example: ABDGHAG123BJGDHTD1234
+    minLength: 21
+    maxLength: 21    
 # host: api.pilot.principal.com
 # basePath: /api/v1
 schemes:
